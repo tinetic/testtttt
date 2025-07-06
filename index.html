@@ -5,26 +5,153 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Blue App" />
+  <meta name="apple-mobile-web-app-title" content="chrxzrbx jailbreak" />
   <link rel="manifest" href="manifest.json" />
-  <title>Blue App</title>
+  <title>chrxzrbx jailbreak</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
-      background-color: #007bff; /* Blue */
-      width: 100%;
       height: 100%;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #000428, #004e92);
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
       color: white;
-      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 40px;
       font-size: 2rem;
+      text-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+
+    .button {
+      padding: 20px 40px;
+      border: none;
+      font-size: 1.2rem;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .popup, .glitch, .blackout {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+      z-index: 999;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .popup button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #444;
+      border: none;
+      color: white;
+      border-radius: 10px;
+    }
+
+    .glitch-text {
+      font-size: 1.5rem;
+      animation: glitch 0.3s infinite;
+    }
+
+    @keyframes glitch {
+      0% { transform: translate(1px, 1px); }
+      20% { transform: translate(-1px, 2px); }
+      40% { transform: translate(-3px, -1px); }
+      60% { transform: translate(3px, 2px); }
+      80% { transform: translate(-1px, -2px); }
+      100% { transform: translate(1px, 1px); }
+    }
+
+    .loading-text {
+      font-size: 1.5rem;
+      animation: pulse 1s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.2; }
     }
   </style>
 </head>
 <body>
-  <div>Hello from your Blue App!</div>
+
+  <h1>chrxzrbx jailbreak</h1>
+  <button class="button" onclick="showPopup()">Jailbreak</button>
+
+  <div class="popup hidden" id="confirmPopup">
+    <p>Are you sure?</p>
+    <div>
+      <button onclick="startJailbreak()">Yes</button>
+      <button onclick="hidePopup()">No</button>
+    </div>
+  </div>
+
+  <div class="popup hidden" id="loadingScreen">
+    <div class="loading-text">Jailbreaking...</div>
+  </div>
+
+  <div class="popup hidden" id="glitchScreen">
+    <div class="glitch-text">Jailbreak complete.</div>
+    <div class="glitch-text">System files being modified...</div>
+    <div class="glitch-text">Something went wrong...</div>
+  </div>
+
+  <div class="popup hidden" id="blackout"></div>
+
+  <script>
+    function showPopup() {
+      document.getElementById('confirmPopup').classList.remove('hidden');
+    }
+
+    function hidePopup() {
+      document.getElementById('confirmPopup').classList.add('hidden');
+    }
+
+    function startJailbreak() {
+      hidePopup();
+      document.getElementById('loadingScreen').classList.remove('hidden');
+
+      setTimeout(() => {
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('glitchScreen').classList.remove('hidden');
+      }, 10000); // 10 seconds loading
+
+      setTimeout(() => {
+        document.getElementById('glitchScreen').classList.add('hidden');
+        document.getElementById('blackout').classList.remove('hidden');
+        document.body.style.background = "black";
+      }, 15000); // fake glitching for 5 seconds
+    }
+  </script>
+
 </body>
 </html>
