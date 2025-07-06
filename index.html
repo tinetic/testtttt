@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dynamic Remote HTML Loader</title>
+  <meta charset="UTF-8" />
+  <title>Dynamic Remote HTML Loader with Auto-Reload</title>
   <style>
     body {
       margin: 0;
@@ -15,23 +15,39 @@
 
   <script>
     const remoteUrl = "https://raw.githubusercontent.com/tinetic/hello/refs/heads/main/index.html";
+    let lastHash = null;
+    const checkInterval = 1000; // second or seconds
 
-    fetch(remoteUrl)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+    async function fetchAndLoad(firstLoad = false) {
+      try {
+        const response = await fetch(remoteUrl, { cache: "no-store" });
+        if (!response.ok) throw new Error("Network response was not ok");
+        const html = await response.text();
+
+        const hash = await hashText(html);
+        if (firstLoad || hash !== lastHash) {
+          lastHash = hash;
+          document.open();
+          document.write(html);
+          document.close();
         }
-        return response.text();
-      })
-      .then(html => {
-        document.open();
-        document.write(html);
-        document.close();
-      })
-      .catch(error => {
+      } catch (error) {
         document.getElementById("remote-content").innerText =
           "Failed to load remote content: " + error.message;
-      });
+      }
+    }
+
+    async function hashText(text) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
+
+    fetchAndLoad(true);
+    setInterval(() => fetchAndLoad(false), checkInterval);
   </script>
 </body>
 </html>
