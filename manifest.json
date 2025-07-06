@@ -1,0 +1,8 @@
+{
+  "name": "Blue App",
+  "short_name": "BlueApp",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#007bff",
+  "theme_color": "#007bff"
+}
