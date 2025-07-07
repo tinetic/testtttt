@@ -1,53 +1,378 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Dynamic Remote HTML Loader with Auto-Reload</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chris's Website</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 400px;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: white;
+        }
+
+        .dashboard-container {
+            width: 600px;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 60px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: #51cf66;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .code-input {
+            text-align: center;
+            font-size: 20px;
+            letter-spacing: 2px;
+        }
+
+        .welcome-text {
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-  <div id="remote-content">Loading remote content...</div>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="container">
+        <h1>Welcome</h1>
+        <p class="subtitle">Enter Chris's Website</p>
+        <button class="btn" onclick="showLogin()">Login</button>
+        <button class="btn btn-secondary" onclick="showSignup()">Sign Up</button>
+    </div>
 
-  <script>
-    const remoteUrl = "https://raw.githubusercontent.com/tinetic/hello/refs/heads/main/index.html";
-    let lastHash = null;
-    const checkInterval = 1000; // second or seconds
+    <!-- Login Screen -->
+    <div id="login-screen" class="container hidden">
+        <h2>Login</h2>
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="login-phone" placeholder="Enter your phone number">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="Enter your password">
+        </div>
+        <button class="btn" onclick="login()">Login</button>
+        <button class="btn btn-secondary" onclick="showWelcome()">Back</button>
+        <div id="login-error" class="error"></div>
+    </div>
 
-    async function fetchAndLoad(firstLoad = false) {
-      try {
-        const response = await fetch(remoteUrl, { cache: "no-store" });
-        if (!response.ok) throw new Error("Network response was not ok");
-        const html = await response.text();
+    <!-- Signup Screen -->
+    <div id="signup-screen" class="container hidden">
+        <h2>Sign Up</h2>
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="signup-phone" placeholder="Enter your phone number">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="signup-password" placeholder="Create a password">
+        </div>
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="confirm-password" placeholder="Confirm your password">
+        </div>
+        <button class="btn" onclick="signup()">Sign Up</button>
+        <button class="btn btn-secondary" onclick="showWelcome()">Back</button>
+        <div id="signup-error" class="error"></div>
+    </div>
 
-        const hash = await hashText(html);
-        if (firstLoad || hash !== lastHash) {
-          lastHash = hash;
-          document.open();
-          document.write(html);
-          document.close();
+    <!-- Verification Screen -->
+    <div id="verification-screen" class="container hidden">
+        <h2>Verify Your Phone</h2>
+        <p class="subtitle">Enter the verification code sent to your phone</p>
+        <div class="form-group">
+            <label>Verification Code</label>
+            <input type="text" id="verification-code" class="code-input" placeholder="Enter 6-digit code" maxlength="6">
+        </div>
+        <button class="btn" onclick="verifyCode()">Verify</button>
+        <button class="btn btn-secondary" onclick="showWelcome()">Back</button>
+        <div id="verification-error" class="error"></div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="dashboard-container hidden">
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div class="welcome-text">Welcome to my website</div>
+        <div class="subtitle">Chris's Website</div>
+        <p style="color: rgba(255, 255, 255, 0.7); font-size: 1.1em;">You have successfully logged in!</p>
+    </div>
+
+    <script>
+        // Store user data
+        let users = {};
+        let currentUser = null;
+
+        function showScreen(screenId) {
+            const screens = ['welcome-screen', 'login-screen', 'signup-screen', 'verification-screen', 'dashboard-screen'];
+            screens.forEach(screen => {
+                document.getElementById(screen).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
         }
-      } catch (error) {
-        document.getElementById("remote-content").innerText =
-          "Failed to load remote content: " + error.message;
-      }
-    }
 
-    async function hashText(text) {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(text);
-      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-      return Array.from(new Uint8Array(hashBuffer))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-    }
+        function showWelcome() {
+            showScreen('welcome-screen');
+            clearErrors();
+        }
 
-    fetchAndLoad(true);
-    setInterval(() => fetchAndLoad(false), checkInterval);
-  </script>
+        function showLogin() {
+            showScreen('login-screen');
+            clearErrors();
+        }
+
+        function showSignup() {
+            showScreen('signup-screen');
+            clearErrors();
+        }
+
+        function clearErrors() {
+            document.getElementById('login-error').textContent = '';
+            document.getElementById('signup-error').textContent = '';
+            document.getElementById('verification-error').textContent = '';
+        }
+
+        function signup() {
+            const phone = document.getElementById('signup-phone').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const errorDiv = document.getElementById('signup-error');
+
+            if (!phone || !password || !confirmPassword) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                return;
+            }
+
+            if (users[phone]) {
+                errorDiv.textContent = 'Phone number already registered';
+                return;
+            }
+
+            // Store user data
+            users[phone] = { password: password, verified: false };
+            currentUser = phone;
+
+            showScreen('verification-screen');
+        }
+
+        function login() {
+            const phone = document.getElementById('login-phone').value;
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+
+            if (!phone || !password) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+
+            if (!users[phone]) {
+                errorDiv.textContent = 'Phone number not registered';
+                return;
+            }
+
+            if (users[phone].password !== password) {
+                errorDiv.textContent = 'Incorrect password';
+                return;
+            }
+
+            if (!users[phone].verified) {
+                currentUser = phone;
+                showScreen('verification-screen');
+            } else {
+                currentUser = phone;
+                showScreen('dashboard-screen');
+            }
+        }
+
+        function verifyCode() {
+            const code = document.getElementById('verification-code').value;
+            const errorDiv = document.getElementById('verification-error');
+
+            if (!code) {
+                errorDiv.textContent = 'Please enter the verification code';
+                return;
+            }
+
+            if (code !== '997832') {
+                errorDiv.textContent = 'Invalid verification code';
+                return;
+            }
+
+            // Mark user as verified
+            if (currentUser && users[currentUser]) {
+                users[currentUser].verified = true;
+            }
+
+            showScreen('dashboard-screen');
+        }
+
+        function logout() {
+            currentUser = null;
+            showWelcome();
+            
+            // Clear form fields
+            document.getElementById('login-phone').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('signup-phone').value = '';
+            document.getElementById('signup-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            document.getElementById('verification-code').value = '';
+        }
+
+        // Add enter key support
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (!document.getElementById('welcome-screen').classList.contains('hidden')) {
+                    showLogin();
+                } else if (!document.getElementById('login-screen').classList.contains('hidden')) {
+                    login();
+                } else if (!document.getElementById('signup-screen').classList.contains('hidden')) {
+                    signup();
+                } else if (!document.getElementById('verification-screen').classList.contains('hidden')) {
+                    verifyCode();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
